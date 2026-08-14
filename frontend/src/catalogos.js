@@ -56,6 +56,15 @@ export const estadoBadge = (e) =>
     Cerrada: 'bg-gray-100 text-gray-600',
   }[e] || 'bg-gray-100 text-gray-600');
 
+export const postulacionBadge = (e) =>
+  ({
+    Nuevo: 'bg-blue-100 text-blue-700',
+    'En revisión': 'bg-purple-100 text-purple-700',
+    Entrevista: 'bg-orange-100 text-orange-700',
+    Contratado: 'bg-green-100 text-green-700',
+    Rechazado: 'bg-red-100 text-red-700',
+  }[e] || 'bg-gray-100 text-gray-600');
+
 export function formatFecha(iso) {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('es-CL');

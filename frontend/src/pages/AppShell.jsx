@@ -1,32 +1,64 @@
 import { useEffect, useState } from 'react';
-import { Briefcase, Users, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Briefcase, Users, User, UserCog, LogOut } from 'lucide-react';
 import { api } from '../api/client';
 import RecruitmentView from './RecruitmentView';
 import CandidatesView from './CandidatesView';
+import UsuariosView from './UsuariosView';
 
 export default function AppShell() {
+  const navigate = useNavigate();
+  const [usuario, setUsuario] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [view, setView] = useState('recruitment');
   const [filterPosition, setFilterPosition] = useState('');
   const [candidatosCount, setCandidatosCount] = useState(0);
 
   useEffect(() => {
+    api
+      .me()
+      .then((data) => {
+        if (data.tipo !== 'usuario') throw new Error('No autorizado');
+        setUsuario(data);
+      })
+      .catch(() => navigate('/login'))
+      .finally(() => setCheckingAuth(false));
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!usuario) return;
     api.getCandidatos().then((data) => setCandidatosCount(data.length));
-  }, []);
+  }, [usuario]);
 
   const irACandidatos = (posicion = '') => {
     setFilterPosition(posicion);
     setView('candidates');
   };
 
+  const handleLogout = async () => {
+    await api.logout();
+    navigate('/login');
+  };
+
+  if (checkingAuth || !usuario) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-sm text-gray-400">Cargando...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-[#1a1f36] text-white px-6 py-3 flex items-center justify-between">
         <div />
         <div className="flex items-center gap-4">
-          <span className="text-sm">Vera Mila</span>
+          <div className="text-right">
+            <div className="text-sm">{usuario.nombre}</div>
+            <div className="text-xs text-white/40">{usuario.rol === 'ADMIN' ? 'Administrador' : 'Reclutador'}</div>
+          </div>
           <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
             <User className="w-5 h-5" />
           </div>
+          <button onClick={handleLogout} title="Cerrar sesión" className="text-white/50 hover:text-white transition-colors">
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </header>
 
@@ -53,6 +85,21 @@ export default function AppShell() {
               Candidatos
               <span className="ml-auto bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{candidatosCount}</span>
             </button>
+
+            {usuario.rol === 'ADMIN' && (
+              <>
+                <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4">Administración</p>
+                <button
+                  onClick={() => setView('usuarios')}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                    view === 'usuarios' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <UserCog className="w-4 h-4" />
+                  Usuarios
+                </button>
+              </>
+            )}
           </nav>
         </aside>
 
@@ -67,6 +114,7 @@ export default function AppShell() {
           {view === 'recruitment' && (
             <RecruitmentView candidatosCount={candidatosCount} onVerCandidatos={irACandidatos} />
           )}
+          {view === 'usuarios' && usuario.rol === 'ADMIN' && <UsuariosView usuarioActual={usuario} />}
         </main>
       </div>
     </div>

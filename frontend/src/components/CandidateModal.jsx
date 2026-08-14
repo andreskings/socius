@@ -73,13 +73,14 @@ export default function CandidateModal({ candidate: c, onClose }) {
             <FileText className="w-4 h-4" />
             Descargar datos
           </button>
-          <a
-            href={c.cvArchivo ? api.cvUrl(c.id) : undefined}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f1b2d] text-white rounded-lg text-sm hover:bg-[#1a2f4a] transition-colors ${!c.cvArchivo ? 'opacity-40 pointer-events-none' : ''}`}
+          <button
+            onClick={() => api.descargarCv(c.id, c.cvNombreOriginal)}
+            disabled={!c.cvArchivo}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f1b2d] text-white rounded-lg text-sm hover:bg-[#1a2f4a] transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             <Download className="w-4 h-4" />
             Descargar CV
-          </a>
+          </button>
         </div>
       </div>
     </div>
