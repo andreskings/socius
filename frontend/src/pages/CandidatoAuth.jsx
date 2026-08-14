@@ -9,37 +9,36 @@ const inputCls =
 const selectCls =
   'w-full px-4 py-2.5 bg-[#f0f4f8] border border-transparent rounded-lg text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 appearance-none';
 
-export default function ApplyPage() {
+export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 'registro' }) {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [modo, setModo] = useState(modoInicial); // 'registro' | 'login'
   const [busquedas, setBusquedas] = useState([]);
+
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [telefono, setTelefono] = useState('');
   const [region, setRegion] = useState('');
   const [presencial, setPresencial] = useState('');
-  const [cargo, setCargo] = useState('');
   const [experiencia, setExperiencia] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [cvFile, setCvFile] = useState(null);
   const [dragging, setDragging] = useState(false);
-  const [enviado, setEnviado] = useState(false);
+
+  const [resultado, setResultado] = useState(null); // { verificado, postulado }
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
   const fileRef = useRef(null);
 
   useEffect(() => {
-    api.getBusquedas().then((data) => {
-      setBusquedas(data);
-      if (slug) {
-        const match = data.find((b) => b.posicion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === slug);
-        if (match) setCargo(match.posicion);
-      }
-    });
-  }, [slug]);
+    api.getBusquedas().then(setBusquedas).catch(() => {});
+  }, []);
 
-  const posicionPreseleccionada = busquedas.find((b) => b.posicion === cargo)?.posicion;
+  const busquedaSeleccionada = slug
+    ? busquedas.find((b) => b.posicion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === slug)
+    : null;
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -48,25 +47,56 @@ export default function ApplyPage() {
     if (file) setCvFile(file);
   };
 
-  const handleSubmit = async (e) => {
+  const postularSiCorresponde = async (candidato) => {
+    if (!busquedaSeleccionada || !candidato.emailVerificado) return false;
+    try {
+      await api.postular(busquedaSeleccionada.id);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleRegistro = async (e) => {
     e.preventDefault();
     setEnviando(true);
     setError('');
     try {
-      const busquedaId = busquedas.find((b) => b.posicion === cargo)?.id ?? '';
       const formData = new FormData();
       formData.append('nombre', nombre);
       formData.append('apellido', apellido);
       formData.append('email', email);
+      formData.append('password', password);
       formData.append('telefono', telefono);
       formData.append('region', region);
       formData.append('disponibilidadPresencial', presencial);
       formData.append('experienciaRango', experiencia);
       formData.append('mensaje', mensaje);
-      formData.append('busquedaId', busquedaId);
       if (cvFile) formData.append('cv', cvFile);
-      await api.createCandidato(formData);
-      setEnviado(true);
+      const candidato = await api.registrarCandidato(formData);
+      onLoggedIn(candidato);
+      const postulado = await postularSiCorresponde(candidato);
+      setResultado({ verificado: candidato.emailVerificado, postulado });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setEnviando(true);
+    setError('');
+    try {
+      const candidato = await api.loginCandidato(email, password);
+      onLoggedIn(candidato);
+      const postulado = await postularSiCorresponde(candidato);
+      if (busquedaSeleccionada) {
+        setResultado({ verificado: candidato.emailVerificado, postulado });
+      } else {
+        navigate('/candidato/portal');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,34 +111,73 @@ export default function ApplyPage() {
           <div className="w-5 h-5 bg-white rounded" />
           <span className="text-white font-semibold text-lg">SOCIUS</span>
         </div>
-        <button onClick={() => navigate('/')} className="text-white/60 hover:text-white text-sm flex items-center gap-1.5 transition-colors">
+        <button onClick={() => navigate('/login')} className="text-white/60 hover:text-white text-sm flex items-center gap-1.5 transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          Volver al panel
+          Acceso interno
         </button>
       </header>
 
       <div className="flex-1 flex items-start justify-center py-10 px-4">
         <div className="bg-white rounded-2xl w-full max-w-2xl shadow-lg overflow-hidden">
           <div className="bg-[#0f1b2d] text-white px-8 py-6">
-            <h1 className="text-xl font-semibold">Formulario de Postulación</h1>
+            <h1 className="text-xl font-semibold">{modo === 'registro' ? 'Crear cuenta de candidato' : 'Iniciar sesión'}</h1>
             <p className="text-sm text-white/60 mt-1">
-              {posicionPreseleccionada ? `Estás postulando al cargo: ${posicionPreseleccionada}` : 'Completa tus datos y adjunta tu CV. Puedes postular sin seleccionar un cargo específico.'}
+              {busquedaSeleccionada
+                ? `Estás postulando al cargo: ${busquedaSeleccionada.posicion}`
+                : 'Necesitás una cuenta para postular y hacer seguimiento de tus postulaciones.'}
             </p>
           </div>
 
-          {enviado ? (
+          {resultado ? (
             <div className="px-8 py-16 flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">¡Postulación enviada!</h2>
-              <p className="text-sm text-gray-500 max-w-sm">Hemos recibido tu información. Nuestro equipo se pondrá en contacto contigo a la brevedad.</p>
-              <button onClick={() => navigate('/')} className="mt-8 px-6 py-2.5 bg-[#0f1b2d] text-white rounded-xl text-sm hover:bg-[#1a2f4a] transition-colors">
-                Volver al inicio
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">¡Cuenta creada!</h2>
+              {!resultado.verificado ? (
+                <p className="text-sm text-gray-500 max-w-sm">
+                  Te enviamos un correo para verificar tu dirección de email. Tenés que verificarlo antes de que tu
+                  postulación quede registrada.
+                </p>
+              ) : resultado.postulado ? (
+                <p className="text-sm text-gray-500 max-w-sm">Tu postulación fue registrada correctamente.</p>
+              ) : (
+                <p className="text-sm text-gray-500 max-w-sm">Tu cuenta ya está lista.</p>
+              )}
+              <button
+                onClick={() => navigate('/candidato/portal')}
+                className="mt-8 px-6 py-2.5 bg-[#0f1b2d] text-white rounded-xl text-sm hover:bg-[#1a2f4a] transition-colors"
+              >
+                Ir a mi portal
               </button>
             </div>
+          ) : modo === 'login' ? (
+            <form onSubmit={handleLogin} className="px-8 py-7 space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Correo electrónico</label>
+                <input required type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+                <input required type="password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="submit"
+                disabled={enviando}
+                className="w-full bg-[#0f1b2d] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#1a2f4a] transition-colors disabled:opacity-60"
+              >
+                {enviando ? 'Ingresando...' : 'Ingresar'}
+              </button>
+              <p className="text-sm text-center text-gray-500">
+                ¿No tenés cuenta?{' '}
+                <button type="button" onClick={() => setModo('registro')} className="text-blue-600 hover:underline">
+                  Registrate
+                </button>
+              </p>
+            </form>
           ) : (
-            <form onSubmit={handleSubmit} className="px-8 py-7 space-y-5">
+            <form onSubmit={handleRegistro} className="px-8 py-7 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -133,19 +202,29 @@ export default function ApplyPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Teléfono <span className="text-red-500">*</span>
+                    Contraseña <span className="text-red-500">*</span>
                   </label>
-                  <input required className={inputCls} placeholder="+56 9 1234 5678" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                  <input
+                    required
+                    minLength={8}
+                    type="password"
+                    className={inputCls}
+                    placeholder="Mínimo 8 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Región de residencia <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
+                  <input className={inputCls} placeholder="+56 9 1234 5678" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Región de residencia</label>
                   <div className="relative">
-                    <select required className={selectCls} value={region} onChange={(e) => setRegion(e.target.value)}>
+                    <select className={selectCls} value={region} onChange={(e) => setRegion(e.target.value)}>
                       <option value="">Selecciona tu región</option>
                       {REGIONES.map((r) => (
                         <option key={r}>{r}</option>
@@ -154,12 +233,13 @@ export default function ApplyPage() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Disponibilidad presencial <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Disponibilidad presencial</label>
                   <div className="relative">
-                    <select required className={selectCls} value={presencial} onChange={(e) => setPresencial(e.target.value)}>
+                    <select className={selectCls} value={presencial} onChange={(e) => setPresencial(e.target.value)}>
                       <option value="">¿Puedes asistir presencialmente?</option>
                       {DISPONIBILIDADES.map((d) => (
                         <option key={d}>{d}</option>
@@ -168,29 +248,10 @@ export default function ApplyPage() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Cargo de interés</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Años de experiencia</label>
                   <div className="relative">
-                    <select className={selectCls} value={cargo} onChange={(e) => setCargo(e.target.value)}>
-                      <option value="">Selecciona un cargo (opcional)</option>
-                      {busquedas.map((b) => (
-                        <option key={b.id} value={b.posicion}>
-                          {b.posicion}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Años de experiencia <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select required className={selectCls} value={experiencia} onChange={(e) => setExperiencia(e.target.value)}>
+                    <select className={selectCls} value={experiencia} onChange={(e) => setExperiencia(e.target.value)}>
                       <option value="">Selecciona</option>
                       {EXPERIENCIAS.map((x) => (
                         <option key={x}>{x}</option>
@@ -213,9 +274,7 @@ export default function ApplyPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Adjuntar CV <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Adjuntar CV (opcional, podés subirlo después)</label>
                 <div
                   className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
                     dragging ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-[#f8fafc] hover:border-blue-300 hover:bg-blue-50/40'
@@ -269,9 +328,15 @@ export default function ApplyPage() {
                 disabled={enviando}
                 className="w-full bg-[#0f1b2d] text-white py-3.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#1a2f4a] transition-colors disabled:opacity-60"
               >
-                {enviando ? 'Enviando...' : 'Enviar mi postulación'}
+                {enviando ? 'Creando cuenta...' : 'Crear cuenta y continuar'}
                 <ArrowRight className="w-4 h-4" />
               </button>
+              <p className="text-sm text-center text-gray-500">
+                ¿Ya tenés cuenta?{' '}
+                <button type="button" onClick={() => setModo('login')} className="text-blue-600 hover:underline">
+                  Iniciá sesión
+                </button>
+              </p>
             </form>
           )}
         </div>
