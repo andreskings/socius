@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import { api } from '../api/client';
 
@@ -68,6 +68,12 @@ export default function StaffLogin({ onLoggedIn = () => {} }) {
             <LogIn className="w-4 h-4" />
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
+          <p className="text-sm text-center text-gray-500">
+            ¿Buscás trabajo?{' '}
+            <Link to="/postular" className="text-purple-600 hover:underline">
+              Postulá acá
+            </Link>
+          </p>
         </form>
       </div>
     </div>
