@@ -25,7 +25,22 @@ export const api = {
     const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v)));
     return request(`/candidatos${qs.toString() ? `?${qs}` : ''}`);
   },
-  cvUrl: (id) => `${BASE}/candidatos/${id}/cv`,
+  // Descarga el CV vía fetch (no navegación directa): un <a href> que apunte al
+  // endpoint de la API pasa por el proxy de desarrollo de CRA, que sólo reenvía
+  // peticiones que NO tengan "Accept: text/html" — una navegación de browser sí
+  // lo tiene, así que en dev sirve el index.html de la SPA en vez de proxear al
+  // backend, dejando una página en blanco. fetch() no tiene ese problema.
+  descargarCv: async (id, nombreArchivo) => {
+    const blob = await request(`/candidatos/${id}/cv`);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo || 'cv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
 
   // ---- Perfil propio de candidato ----
   getMiPerfil: () => request('/candidatos/me'),

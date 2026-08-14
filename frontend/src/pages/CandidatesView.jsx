@@ -200,14 +200,15 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange }
                           <FileText className="w-3.5 h-3.5" />
                           Datos
                         </button>
-                        <a
-                          href={c.cvArchivo ? api.cvUrl(c.id) : undefined}
-                          className={`flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-[#0f1b2d] text-white hover:bg-[#1a2f4a] transition-colors ${!c.cvArchivo ? 'opacity-40 pointer-events-none' : ''}`}
+                        <button
+                          onClick={() => api.descargarCv(c.id, c.cvNombreOriginal)}
+                          disabled={!c.cvArchivo}
+                          className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-[#0f1b2d] text-white hover:bg-[#1a2f4a] transition-colors disabled:opacity-40 disabled:pointer-events-none"
                           title="Descargar CV"
                         >
                           <Download className="w-3.5 h-3.5" />
                           CV
-                        </a>
+                        </button>
                       </div>
                     </td>
                   </tr>
