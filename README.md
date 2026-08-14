@@ -7,7 +7,7 @@ cuando no aplica a una vacante específica).
 ## Stack
 
 - **Backend**: Node.js + Express + Prisma + PostgreSQL
-- **Frontend**: React + Vite + Tailwind CSS + React Router
+- **Frontend**: React (Create React App) + Tailwind CSS + React Router
 - **Infra local**: Docker Compose (solo la base de datos)
 
 ## Alcance implementado
@@ -58,12 +58,13 @@ npm run dev                # http://localhost:4000
 ```bash
 cd frontend
 npm install
-npm run dev                # http://localhost:5173
+npm start                  # http://localhost:3000
 ```
 
-El frontend proxea `/api/*` hacia `http://localhost:4000` (ver `frontend/vite.config.js`).
+El frontend proxea las peticiones no reconocidas hacia `http://localhost:4000`
+(campo `proxy` en `frontend/package.json`, provisto por Create React App).
 
-Abrí `http://localhost:5173` para el panel interno, o `http://localhost:5173/postular`
+Abrí `http://localhost:3000` para el panel interno, o `http://localhost:3000/postular`
 para el formulario público de postulación.
 
 ## Estructura
@@ -84,5 +85,5 @@ frontend/
 - Pipeline de estados de postulación (Nuevo → En revisión → Entrevista → Contratado/Rechazado)
 - Autenticación y roles (reclutador vs. administrador)
 - Edición y cierre de búsquedas desde la UI
-- Tests automatizados (backend: rutas con supertest; frontend: componentes con Vitest)
+- Tests automatizados (backend: rutas con supertest; frontend: componentes con Jest + Testing Library)
 - Notificaciones por email al candidato al postular

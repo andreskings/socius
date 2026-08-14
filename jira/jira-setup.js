@@ -71,7 +71,7 @@ const ESTRUCTURA = [
     stories: [
       'Crear repositorio Git y estructura del proyecto',
       'Configurar backend (Express + Prisma + PostgreSQL)',
-      'Configurar frontend (React + Vite + Tailwind)',
+      'Configurar frontend (React + Create React App + Tailwind)',
       'Definir schema Prisma y correr migración inicial',
     ],
   },
