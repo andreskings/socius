@@ -27,6 +27,7 @@ export const api = {
     return request(`/candidatos${qs.toString() ? `?${qs}` : ''}`);
   },
   eliminarCandidato: (id) => request(`/candidatos/${id}`, { method: 'DELETE' }),
+  analizarCvIA: (id) => request(`/candidatos/${id}/analizar-ia`, { method: 'POST' }),
   // Descarga el CV vía fetch (no navegación directa): un <a href> que apunte al
   // endpoint de la API pasa por el proxy de desarrollo de CRA, que sólo reenvía
   // peticiones que NO tengan "Accept: text/html" — una navegación de browser sí
