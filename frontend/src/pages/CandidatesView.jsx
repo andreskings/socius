@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Search, X, ChevronDown, Calendar, Eye, FileText, Download, Trash2 } from 'lucide-react';
+import { ArrowLeft, Search, X, ChevronDown, Calendar, Eye, FileText, Download } from 'lucide-react';
 import { api } from '../api/client';
 import { formatFecha, veredictoBadge } from '../catalogos';
 import CandidateModal from '../components/CandidateModal';
@@ -69,16 +69,6 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  const eliminarCandidato = async (c) => {
-    if (!window.confirm(`¿Eliminar a ${c.nombre} ${c.apellido}? Esta acción no se puede deshacer.`)) return;
-    try {
-      await api.eliminarCandidato(c.id);
-      cargar();
-    } catch (err) {
-      window.alert(err.message);
-    }
   };
 
   return (
@@ -235,15 +225,6 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                           <Download className="w-3.5 h-3.5" />
                           CV
                         </button>
-                        {usuarioActual?.rol === 'ADMIN' && (
-                          <button
-                            onClick={() => eliminarCandidato(c)}
-                            className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors"
-                            title="Eliminar candidato"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -254,7 +235,14 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
         </div>
       </div>
 
-      {seleccionado && <CandidateModal candidate={seleccionado} onClose={() => setSeleccionado(null)} />}
+      {seleccionado && (
+        <CandidateModal
+          candidate={seleccionado}
+          onClose={() => setSeleccionado(null)}
+          usuarioActual={usuarioActual}
+          onEliminado={cargar}
+        />
+      )}
     </>
   );
 }
