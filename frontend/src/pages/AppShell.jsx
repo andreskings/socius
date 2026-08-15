@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Users, User, UserCog, LogOut } from 'lucide-react';
+import { Briefcase, Users, User, UserCog, LogOut, Kanban } from 'lucide-react';
 import { api } from '../api/client';
 import RecruitmentView from './RecruitmentView';
 import CandidatesView from './CandidatesView';
 import UsuariosView from './UsuariosView';
+import PipelineView from './PipelineView';
 
 export default function AppShell() {
   const navigate = useNavigate();
@@ -85,6 +86,15 @@ export default function AppShell() {
               Candidatos
               <span className="ml-auto bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{candidatosCount}</span>
             </button>
+            <button
+              onClick={() => setView('pipeline')}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                view === 'pipeline' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Kanban className="w-4 h-4" />
+              Pipeline
+            </button>
 
             {usuario.rol === 'ADMIN' && (
               <>
@@ -114,6 +124,7 @@ export default function AppShell() {
           {view === 'recruitment' && (
             <RecruitmentView candidatosCount={candidatosCount} onVerCandidatos={irACandidatos} />
           )}
+          {view === 'pipeline' && <PipelineView />}
           {view === 'usuarios' && usuario.rol === 'ADMIN' && <UsuariosView usuarioActual={usuario} />}
         </main>
       </div>

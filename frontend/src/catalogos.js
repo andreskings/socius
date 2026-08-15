@@ -11,6 +11,8 @@ export const PRIORIDADES = ['Alta', 'Media', 'Baja'];
 
 export const ESTADOS_BUSQUEDA = ['Activa', 'En proceso', 'Entrevistas', 'Cerrada'];
 
+export const ESTADOS_POSTULACION = ['Nuevo', 'En revisión', 'Entrevista', 'Contratado', 'Rechazado'];
+
 export const REGIONES = [
   'Región Metropolitana',
   'Valparaíso',
