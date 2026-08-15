@@ -26,9 +26,12 @@ de cargo con IA (Groq).
 - Link de postulación copiable por búsqueda
 - **Pipeline de postulaciones**: tablero kanban (Nuevo → En revisión → Entrevista →
   Contratado/Rechazado) para que Admin/Reclutador muevan candidatos entre estados
-- **Sugerencia de cargo con IA**: desde la ficha de un candidato, botón "Analizar con
-  IA" — extrae el texto del CV (PDF/DOCX) y le pide a Groq que sugiera a qué búsqueda
-  activa encaja mejor, con un puntaje de afinidad (0-100) y un resumen. Es una
+- **Filtro ATS con IA**: desde la ficha de un candidato, botón "Analizar con IA" —
+  extrae el texto del CV (PDF/DOCX) y le pide a Groq que lo compare punto por punto
+  contra los requisitos de la búsqueda activa a la que mejor encaja (no solo la
+  categoría — usa la descripción de "qué se busca" cargada al crear la oferta).
+  Devuelve un veredicto (Cumple los requisitos / Cumple parcialmente / No cumple),
+  un puntaje de afinidad (0-100) y un resumen de qué coincide y qué falta. Es una
   **sugerencia para que el staff revise, nunca una decisión automática** — ver el
   razonamiento completo en `Desktop/socius-docs/04-roles-permisos-login-candidatos.md`
   sobre por qué el scoring de CV no debe ser un filtro automático

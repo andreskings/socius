@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, FileText, Download, Sparkles, RefreshCw } from 'lucide-react';
-import { formatFecha } from '../catalogos';
+import { formatFecha, veredictoBadge } from '../catalogos';
 import { api } from '../api/client';
 
 export default function CandidateModal({ candidate: c, onClose }) {
@@ -114,15 +114,22 @@ export default function CandidateModal({ candidate: c, onClose }) {
               </button>
             ) : (
               <div className="bg-purple-50 rounded-lg p-3 space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-sm font-medium text-gray-800">
                     {analisis.cargoSugerido || 'Ninguna búsqueda encaja bien'}
                   </span>
-                  <span className="text-xs font-semibold text-purple-700 bg-white px-2 py-0.5 rounded-full border border-purple-200">
-                    Afinidad {analisis.puntaje}/100
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {analisis.veredicto && (
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${veredictoBadge(analisis.veredicto)}`}>
+                        {analisis.veredicto}
+                      </span>
+                    )}
+                    <span className="text-xs font-semibold text-purple-700 bg-white px-2 py-0.5 rounded-full border border-purple-200">
+                      Afinidad {analisis.puntaje}/100
+                    </span>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed">{analisis.resumen}</p>
+                <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{analisis.resumen}</p>
                 <p className="text-[11px] text-gray-400">
                   Sugerencia generada el {formatFecha(analisis.fecha)} — revisar antes de decidir, no es automático.
                 </p>
