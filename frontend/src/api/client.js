@@ -50,6 +50,11 @@ export const api = {
   // ---- Postulaciones ----
   postular: (busquedaId) => request('/postulaciones', { method: 'POST', ...json({ busquedaId }) }),
   getMisPostulaciones: () => request('/postulaciones/mias'),
+  getPostulaciones: (params = {}) => {
+    const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v)));
+    return request(`/postulaciones${qs.toString() ? `?${qs}` : ''}`);
+  },
+  actualizarEstadoPostulacion: (id, estado) => request(`/postulaciones/${id}`, { method: 'PATCH', ...json({ estado }) }),
 
   // ---- Auth candidato ----
   registrarCandidato: (formData) => request('/auth/candidato/registro', { method: 'POST', body: formData }),
