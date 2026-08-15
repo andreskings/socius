@@ -150,7 +150,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                 <th className="py-3 px-4 font-medium">Presencialidad</th>
                 <th className="py-3 px-4 font-medium">IA</th>
                 <th className="py-3 px-4 font-medium">Fecha</th>
-                <th className="py-3 px-4 font-medium text-right">Acciones</th>
+                <th className="py-3 px-4 font-medium text-right sticky right-0 bg-gray-50 border-l border-gray-100">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -168,7 +168,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                 </tr>
               ) : (
                 filtrados.map((c) => (
-                  <tr key={c.id} className="border-b text-sm hover:bg-gray-50 transition-colors">
+                  <tr key={c.id} className="group border-b text-sm hover:bg-gray-50 transition-colors">
                     <td className="py-3 px-4">
                       <div className="font-medium text-gray-900">
                         {c.nombre} {c.apellido}
@@ -208,7 +208,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                         {formatFecha(c.fechaPostulacion)}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 sticky right-0 bg-white group-hover:bg-gray-50 border-l border-gray-100 transition-colors">
                       <div className="flex items-center gap-1 justify-end">
                         <button
                           onClick={() => setSeleccionado(c)}

@@ -76,5 +76,8 @@ export const veredictoBadge = (v) =>
 
 export function formatFecha(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-CL');
+  const d = new Date(iso);
+  const fecha = d.toLocaleDateString('es-CL');
+  const hora = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return `${fecha} ${hora}`;
 }
