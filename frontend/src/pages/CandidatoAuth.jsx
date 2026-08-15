@@ -80,7 +80,13 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
       const candidato = await api.registrarCandidato(formData);
       onLoggedIn(candidato);
       const postulado = await postularSiCorresponde(candidato);
-      setResultado({ verificado: candidato.emailVerificado, postulado });
+      // Si eligió cargo pero todavía no está verificado, la postulación no se pudo
+      // crear ahora — se guarda acá para completarla sola apenas verifique el email
+      // (ver CandidatoVerificarEmail.jsx), sin que tenga que ir a buscarla al portal.
+      if (busquedaElegida && !candidato.emailVerificado) {
+        sessionStorage.setItem('socius:postularAlVerificar', busquedaElegida.id);
+      }
+      setResultado({ verificado: candidato.emailVerificado, postulado, devVerificationUrl: candidato.devVerificationUrl });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -139,10 +145,25 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
               </div>
               <h2 className="text-lg font-semibold text-gray-800 mb-2">¡Cuenta creada!</h2>
               {!resultado.verificado ? (
-                <p className="text-sm text-gray-500 max-w-sm">
-                  Te enviamos un correo para verificar tu dirección de email. Tenés que verificarlo antes de que tu
-                  postulación quede registrada.
-                </p>
+                <>
+                  <p className="text-sm text-gray-500 max-w-sm">
+                    Te enviamos un correo para verificar tu dirección de email. Tenés que verificarlo antes de que tu
+                    postulación quede registrada.
+                  </p>
+                  {resultado.devVerificationUrl && (
+                    <div className="mt-4 max-w-sm bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-xs text-amber-700 font-medium mb-1.5">
+                        Modo desarrollo: no hay envío de email real, verificá con este link
+                      </p>
+                      <a
+                        href={resultado.devVerificationUrl}
+                        className="text-xs text-blue-600 hover:underline break-all"
+                      >
+                        {resultado.devVerificationUrl}
+                      </a>
+                    </div>
+                  )}
+                </>
               ) : resultado.postulado ? (
                 <p className="text-sm text-gray-500 max-w-sm">Tu postulación fue registrada correctamente.</p>
               ) : (

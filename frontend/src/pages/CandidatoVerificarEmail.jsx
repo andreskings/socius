@@ -7,6 +7,7 @@ export default function CandidatoVerificarEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [estado, setEstado] = useState('verificando'); // 'verificando' | 'ok' | 'error'
+  const [postulado, setPostulado] = useState(false);
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -16,7 +17,19 @@ export default function CandidatoVerificarEmail() {
     }
     api
       .verificarEmailCandidato(token)
-      .then(() => setEstado('ok'))
+      .then(async () => {
+        // Si eligió un cargo al registrarse (mismo navegador), completa esa
+        // postulación ahora que el email ya está verificado, sin pasos extra.
+        const busquedaId = sessionStorage.getItem('socius:postularAlVerificar');
+        if (busquedaId) {
+          sessionStorage.removeItem('socius:postularAlVerificar');
+          await api
+            .postular(busquedaId)
+            .then(() => setPostulado(true))
+            .catch(() => {});
+        }
+        setEstado('ok');
+      })
       .catch(() => setEstado('error'));
   }, [searchParams]);
 
@@ -30,7 +43,9 @@ export default function CandidatoVerificarEmail() {
               <Check className="w-8 h-8 text-green-600" />
             </div>
             <h1 className="text-lg font-semibold text-gray-800 mb-2">Correo verificado</h1>
-            <p className="text-sm text-gray-500 mb-6">Ya podés postular a búsquedas abiertas.</p>
+            <p className="text-sm text-gray-500 mb-6">
+              {postulado ? 'Tu postulación quedó registrada.' : 'Ya podés postular a búsquedas abiertas.'}
+            </p>
             <button
               onClick={() => navigate('/candidato/portal')}
               className="px-6 py-2.5 bg-[#0f1b2d] text-white rounded-xl text-sm hover:bg-[#1a2f4a] transition-colors"

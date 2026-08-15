@@ -12,6 +12,8 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
   const [loading, setLoading] = useState(true);
   const [subiendoCv, setSubiendoCv] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [devVerificationUrl, setDevVerificationUrl] = useState('');
+  const [reenviando, setReenviando] = useState(false);
   const fileRef = useRef(null);
 
   const cargar = () => {
@@ -55,6 +57,19 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
   const busquedasIds = new Set(postulaciones.map((p) => p.busquedaId));
   const disponibles = busquedas.filter((b) => b.estado === 'Activa' && !busquedasIds.has(b.id));
 
+  const handleReenviarVerificacion = async () => {
+    setReenviando(true);
+    setDevVerificationUrl('');
+    try {
+      const res = await api.reenviarVerificacion();
+      if (res.devVerificationUrl) setDevVerificationUrl(res.devVerificationUrl);
+    } catch (err) {
+      setMensaje(err.message);
+    } finally {
+      setReenviando(false);
+    }
+  };
+
   const handlePostular = async (busquedaId) => {
     setMensaje('');
     try {
@@ -87,10 +102,28 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">{perfil.email}</p>
           {!perfil.emailVerificado && (
-            <p className="text-sm text-orange-600 bg-orange-50 rounded-lg px-3 py-2 mt-3">
-              Todavía no verificaste tu correo. Revisá el link de verificación (en este entorno de desarrollo se
-              muestra en la consola del servidor backend, no se envía email real) para poder postular.
-            </p>
+            <div className="bg-orange-50 rounded-lg px-3 py-2.5 mt-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-orange-600">Todavía no verificaste tu correo. No podés postular hasta hacerlo.</p>
+                <button
+                  onClick={handleReenviarVerificacion}
+                  disabled={reenviando}
+                  className="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors disabled:opacity-60"
+                >
+                  {reenviando ? 'Generando...' : 'Reenviar verificación'}
+                </button>
+              </div>
+              {devVerificationUrl && (
+                <div className="mt-2 pt-2 border-t border-orange-200">
+                  <p className="text-xs text-orange-700 font-medium mb-1">
+                    Modo desarrollo: no hay envío de email real, verificá con este link
+                  </p>
+                  <a href={devVerificationUrl} className="text-xs text-blue-600 hover:underline break-all">
+                    {devVerificationUrl}
+                  </a>
+                </div>
+              )}
+            </div>
           )}
 
           <div className="mt-4 flex items-center gap-3">

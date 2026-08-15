@@ -60,6 +60,7 @@ export const api = {
   registrarCandidato: (formData) => request('/auth/candidato/registro', { method: 'POST', body: formData }),
   loginCandidato: (email, password) => request('/auth/candidato/login', { method: 'POST', ...json({ email, password }) }),
   verificarEmailCandidato: (token) => request('/auth/candidato/verificar-email', { method: 'POST', ...json({ token }) }),
+  reenviarVerificacion: () => request('/auth/candidato/reenviar-verificacion', { method: 'POST' }),
 
   // ---- Auth staff ----
   loginStaff: (email, password) => request('/auth/staff/login', { method: 'POST', ...json({ email, password }) }),
