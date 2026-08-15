@@ -24,6 +24,7 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
   const [presencial, setPresencial] = useState('');
   const [experiencia, setExperiencia] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [cargoElegido, setCargoElegido] = useState('');
   const [cvFile, setCvFile] = useState(null);
   const [dragging, setDragging] = useState(false);
 
@@ -40,6 +41,9 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
     ? busquedas.find((b) => b.posicion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === slug)
     : null;
 
+  // Si no vino por un link con cargo fijo (slug), el candidato puede elegir uno del dropdown.
+  const busquedaElegida = busquedaSeleccionada || busquedas.find((b) => b.id === cargoElegido) || null;
+
   const handleDrop = (e) => {
     e.preventDefault();
     setDragging(false);
@@ -48,9 +52,9 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
   };
 
   const postularSiCorresponde = async (candidato) => {
-    if (!busquedaSeleccionada || !candidato.emailVerificado) return false;
+    if (!busquedaElegida || !candidato.emailVerificado) return false;
     try {
-      await api.postular(busquedaSeleccionada.id);
+      await api.postular(busquedaElegida.id);
       return true;
     } catch {
       return false;
@@ -122,8 +126,8 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
           <div className="bg-[#0f1b2d] text-white px-8 py-6">
             <h1 className="text-xl font-semibold">{modo === 'registro' ? 'Crear cuenta de candidato' : 'Iniciar sesión'}</h1>
             <p className="text-sm text-white/60 mt-1">
-              {busquedaSeleccionada
-                ? `Estás postulando al cargo: ${busquedaSeleccionada.posicion}`
+              {busquedaElegida
+                ? `Estás postulando al cargo: ${busquedaElegida.posicion}`
                 : 'Necesitás una cuenta para postular y hacer seguimiento de tus postulaciones.'}
             </p>
           </div>
@@ -261,6 +265,25 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                   </div>
                 </div>
               </div>
+
+              {!busquedaSeleccionada && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Cargo de interés</label>
+                  <div className="relative">
+                    <select className={selectCls} value={cargoElegido} onChange={(e) => setCargoElegido(e.target.value)}>
+                      <option value="">Sin cargo específico (base de talentos)</option>
+                      {busquedas
+                        .filter((b) => b.estado === 'Activa')
+                        .map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.posicion}
+                          </option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Mensaje (opcional)</label>
