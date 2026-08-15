@@ -19,12 +19,14 @@ export const api = {
     return request(`/busquedas${qs.toString() ? `?${qs}` : ''}`);
   },
   createBusqueda: (data) => request('/busquedas', { method: 'POST', ...json(data) }),
+  eliminarBusqueda: (id) => request(`/busquedas/${id}`, { method: 'DELETE' }),
 
   // ---- Candidatos (staff) ----
   getCandidatos: (params = {}) => {
     const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v)));
     return request(`/candidatos${qs.toString() ? `?${qs}` : ''}`);
   },
+  eliminarCandidato: (id) => request(`/candidatos/${id}`, { method: 'DELETE' }),
   // Descarga el CV vía fetch (no navegación directa): un <a href> que apunte al
   // endpoint de la API pasa por el proxy de desarrollo de CRA, que sólo reenvía
   // peticiones que NO tengan "Accept: text/html" — una navegación de browser sí

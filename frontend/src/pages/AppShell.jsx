@@ -119,6 +119,7 @@ export default function AppShell() {
               filterPosition={filterPosition}
               onBack={() => setView('recruitment')}
               onCountChange={setCandidatosCount}
+              usuarioActual={usuario}
             />
           )}
           {view === 'recruitment' && (

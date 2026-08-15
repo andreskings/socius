@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, X, Briefcase, Calendar, ChevronDown } from 'lucide-react';
+import { Search, X, Briefcase, Calendar, ChevronDown, Trash2 } from 'lucide-react';
 import { api } from '../api/client';
 import { PRACTICAS, PRIORIDADES, prioridadBadge, estadoBadge, formatFecha } from '../catalogos';
 import NewSearchModal from '../components/NewSearchModal';
@@ -37,6 +37,16 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
   );
 
   const hayFiltros = posicion || practica || prioridad || estado;
+
+  const eliminarBusqueda = async (b) => {
+    if (!window.confirm(`¿Eliminar la búsqueda "${b.posicion}"? Los candidatos que postularon pasan a la base de talentos. Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.eliminarBusqueda(b.id);
+      load();
+    } catch (err) {
+      window.alert(err.message);
+    }
+  };
 
   const stats = [
     { label: 'Búsquedas Activas', value: busquedas.filter((b) => b.estado === 'Activa').length, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -195,6 +205,13 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2 justify-end">
                         <CopyLinkButton posicion={b.posicion} />
+                        <button
+                          onClick={() => eliminarBusqueda(b)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="Eliminar búsqueda"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
