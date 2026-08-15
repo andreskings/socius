@@ -124,8 +124,10 @@ export default function AppShell() {
           {view === 'recruitment' && (
             <RecruitmentView candidatosCount={candidatosCount} onVerCandidatos={irACandidatos} />
           )}
-          {view === 'pipeline' && <PipelineView />}
-          {view === 'usuarios' && usuario.rol === 'ADMIN' && <UsuariosView usuarioActual={usuario} />}
+          {view === 'pipeline' && <PipelineView onBack={() => setView('recruitment')} />}
+          {view === 'usuarios' && usuario.rol === 'ADMIN' && (
+            <UsuariosView usuarioActual={usuario} onBack={() => setView('recruitment')} />
+          )}
         </main>
       </div>
     </div>

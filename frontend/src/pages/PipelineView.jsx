@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Download, Mail } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Download, Mail } from 'lucide-react';
 import { api } from '../api/client';
 import { ESTADOS_POSTULACION, postulacionBadge } from '../catalogos';
 
@@ -11,7 +11,7 @@ const COLUMNA_ESTILO = {
   Rechazado: 'border-t-red-400',
 };
 
-export default function PipelineView() {
+export default function PipelineView({ onBack }) {
   const [postulaciones, setPostulaciones] = useState([]);
   const [busquedas, setBusquedas] = useState([]);
   const [busquedaId, setBusquedaId] = useState('');
@@ -54,9 +54,15 @@ export default function PipelineView() {
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold">Pipeline de postulaciones</h1>
-          <p className="text-sm text-gray-500 mt-1">Seguimiento de candidatos por búsqueda</p>
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </button>
+          <div>
+            <h1 className="text-2xl font-semibold">Pipeline de postulaciones</h1>
+            <p className="text-sm text-gray-500 mt-1">Seguimiento de candidatos por búsqueda</p>
+          </div>
         </div>
         <div className="relative">
           <select

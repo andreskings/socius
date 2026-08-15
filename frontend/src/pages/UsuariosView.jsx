@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { UserPlus, Power } from 'lucide-react';
+import { ArrowLeft, UserPlus, Power } from 'lucide-react';
 import { api } from '../api/client';
 import { formatFecha } from '../catalogos';
 
@@ -8,7 +8,7 @@ const inputCls =
 const selectCls =
   'w-full px-4 py-2.5 bg-[#f0f4f8] border border-transparent rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-400';
 
-export default function UsuariosView({ usuarioActual }) {
+export default function UsuariosView({ usuarioActual, onBack }) {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -57,9 +57,15 @@ export default function UsuariosView({ usuarioActual }) {
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold">Usuarios</h1>
-          <p className="text-sm text-gray-500 mt-1">Cuentas de administradores y reclutadores</p>
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </button>
+          <div>
+            <h1 className="text-2xl font-semibold">Usuarios</h1>
+            <p className="text-sm text-gray-500 mt-1">Cuentas de administradores y reclutadores</p>
+          </div>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
