@@ -207,7 +207,7 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
                         <CopyLinkButton posicion={b.posicion} />
                         <button
                           onClick={() => eliminarBusqueda(b)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors"
                           title="Eliminar búsqueda"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

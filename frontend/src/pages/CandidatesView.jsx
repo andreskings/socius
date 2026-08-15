@@ -238,7 +238,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                         {usuarioActual?.rol === 'ADMIN' && (
                           <button
                             onClick={() => eliminarCandidato(c)}
-                            className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors"
                             title="Eliminar candidato"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
