@@ -136,6 +136,11 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                 ? `Estás postulando al cargo: ${busquedaElegida.posicion}`
                 : 'Necesitás una cuenta para postular y hacer seguimiento de tus postulaciones.'}
             </p>
+            {busquedaElegida?.descripcionCarga && (
+              <p className="text-sm text-white/50 mt-2 leading-relaxed border-t border-white/10 pt-2">
+                {busquedaElegida.descripcionCarga}
+              </p>
+            )}
           </div>
 
           {resultado ? (

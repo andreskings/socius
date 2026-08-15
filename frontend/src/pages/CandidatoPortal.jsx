@@ -173,14 +173,19 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
             <h2 className="text-sm font-semibold text-gray-700 mb-4">Búsquedas abiertas</h2>
             <div className="space-y-2">
               {disponibles.map((b) => (
-                <div key={b.id} className="flex items-center justify-between border-b last:border-0 py-3">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-800">{b.posicion}</span>
+                <div key={b.id} className="flex items-center justify-between gap-4 border-b last:border-0 py-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
+                      <span className="text-sm text-gray-800">{b.posicion}</span>
+                    </div>
+                    {b.descripcionCarga && (
+                      <p className="text-xs text-gray-500 mt-1 ml-6 leading-relaxed">{b.descripcionCarga}</p>
+                    )}
                   </div>
                   <button
                     onClick={() => handlePostular(b.id)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                    className="text-xs px-3 py-1.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors shrink-0"
                   >
                     Postularme
                   </button>
