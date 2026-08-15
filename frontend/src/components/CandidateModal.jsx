@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { X, FileText, Download, Sparkles, RefreshCw, Trash2 } from 'lucide-react';
+import { X, FileText, Download, Sparkles, RefreshCw } from 'lucide-react';
 import { formatFecha, veredictoBadge } from '../catalogos';
 import { api } from '../api/client';
 
-export default function CandidateModal({ candidate: c, onClose, usuarioActual, onEliminado }) {
+export default function CandidateModal({ candidate: c, onClose }) {
   const [analisis, setAnalisis] = useState(c.analisisIa ?? null);
   const [analizando, setAnalizando] = useState(false);
   const [errorAnalisis, setErrorAnalisis] = useState('');
-  const [eliminando, setEliminando] = useState(false);
 
   const rows = [
     ['Email', c.email],
@@ -41,19 +40,6 @@ export default function CandidateModal({ candidate: c, onClose, usuarioActual, o
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  const eliminarCandidato = async () => {
-    if (!window.confirm(`¿Eliminar a ${c.nombre} ${c.apellido}? Esta acción no se puede deshacer.`)) return;
-    setEliminando(true);
-    try {
-      await api.eliminarCandidato(c.id);
-      onEliminado?.(c.id);
-      onClose();
-    } catch (err) {
-      window.alert(err.message);
-      setEliminando(false);
-    }
   };
 
   const analizarConIA = async () => {
@@ -152,34 +138,22 @@ export default function CandidateModal({ candidate: c, onClose, usuarioActual, o
             {errorAnalisis && <p className="text-xs text-red-600 mt-2">{errorAnalisis}</p>}
           </div>
         </div>
-        <div className="border-t px-6 py-4 flex flex-col gap-3 shrink-0">
-          <div className="flex gap-3">
-            <button
-              onClick={descargarDatos}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <FileText className="w-4 h-4" />
-              Descargar datos
-            </button>
-            <button
-              onClick={() => api.descargarCv(c.id, c.cvNombreOriginal)}
-              disabled={!c.cvArchivo}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f1b2d] text-white rounded-lg text-sm hover:bg-[#1a2f4a] transition-colors disabled:opacity-40 disabled:pointer-events-none"
-            >
-              <Download className="w-4 h-4" />
-              Descargar CV
-            </button>
-          </div>
-          {usuarioActual?.rol === 'ADMIN' && (
-            <button
-              onClick={eliminarCandidato}
-              disabled={eliminando}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 hover:text-red-700 transition-colors disabled:opacity-50"
-            >
-              <Trash2 className="w-4 h-4" />
-              {eliminando ? 'Eliminando...' : 'Eliminar candidato'}
-            </button>
-          )}
+        <div className="border-t px-6 py-4 flex gap-3 shrink-0">
+          <button
+            onClick={descargarDatos}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Descargar datos
+          </button>
+          <button
+            onClick={() => api.descargarCv(c.id, c.cvNombreOriginal)}
+            disabled={!c.cvArchivo}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f1b2d] text-white rounded-lg text-sm hover:bg-[#1a2f4a] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <Download className="w-4 h-4" />
+            Descargar CV
+          </button>
         </div>
       </div>
     </div>
