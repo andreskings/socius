@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Search, X, ChevronDown, Calendar, Eye, FileText, Download, Trash2 } from 'lucide-react';
 import { api } from '../api/client';
-import { formatFecha } from '../catalogos';
+import { formatFecha, veredictoBadge } from '../catalogos';
 import CandidateModal from '../components/CandidateModal';
 
 export default function CandidatesView({ filterPosition, onBack, onCountChange, usuarioActual }) {
@@ -148,6 +148,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                 <th className="py-3 px-4 font-medium">Experiencia</th>
                 <th className="py-3 px-4 font-medium">Región</th>
                 <th className="py-3 px-4 font-medium">Presencialidad</th>
+                <th className="py-3 px-4 font-medium">IA</th>
                 <th className="py-3 px-4 font-medium">Fecha</th>
                 <th className="py-3 px-4 font-medium text-right">Acciones</th>
               </tr>
@@ -155,13 +156,13 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="py-12 text-center text-sm text-gray-400">
                     Cargando...
                   </td>
                 </tr>
               ) : filtrados.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-sm text-gray-400">
+                  <td colSpan={8} className="py-12 text-center text-sm text-gray-400">
                     No hay candidatos que coincidan con los filtros
                   </td>
                 </tr>
@@ -187,6 +188,19 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                       >
                         {presencialidadLabel(c.disponibilidadPresencial)}
                       </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      {c.analisisIa ? (
+                        <button
+                          onClick={() => setSeleccionado(c)}
+                          title={`Afinidad ${c.analisisIa.puntaje}/100 — clic para ver el detalle`}
+                          className={`text-xs px-2 py-1 rounded-full font-medium hover:opacity-80 transition-opacity ${veredictoBadge(c.analisisIa.veredicto)}`}
+                        >
+                          {c.analisisIa.veredicto || `Afinidad ${c.analisisIa.puntaje}/100`}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-300">Sin analizar</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-gray-500">
                       <span className="flex items-center gap-1">

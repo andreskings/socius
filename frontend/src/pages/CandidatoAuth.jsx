@@ -308,6 +308,11 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
+                  {cargoElegido && busquedaElegida?.descripcionCarga && (
+                    <p className="text-xs text-gray-500 mt-1.5 leading-relaxed bg-gray-50 rounded-lg p-2.5">
+                      {busquedaElegida.descripcionCarga}
+                    </p>
+                  )}
                 </div>
               )}
 
