@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Upload, X } from 'lucide-react';
 import { api } from '../api/client';
 import { REGIONES, DISPONIBILIDADES, EXPERIENCIAS } from '../catalogos';
@@ -188,7 +188,12 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                 <input required type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+                  <Link to="/candidato/olvide" className="text-xs text-blue-600 hover:underline">
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
                 <input required type="password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}

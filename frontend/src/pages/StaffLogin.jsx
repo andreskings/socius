@@ -49,7 +49,12 @@ export default function StaffLogin({ onLoggedIn = () => {} }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <Link to="/login/olvide" className="text-xs text-purple-600 hover:underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <input
               required
               type="password"
