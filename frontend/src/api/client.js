@@ -57,7 +57,8 @@ export const api = {
     const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v)));
     return request(`/postulaciones${qs.toString() ? `?${qs}` : ''}`);
   },
-  actualizarEstadoPostulacion: (id, estado) => request(`/postulaciones/${id}`, { method: 'PATCH', ...json({ estado }) }),
+  actualizarEstadoPostulacion: (id, estado, extra = {}) =>
+    request(`/postulaciones/${id}`, { method: 'PATCH', ...json({ estado, ...extra }) }),
 
   // ---- Auth candidato ----
   registrarCandidato: (formData) => request('/auth/candidato/registro', { method: 'POST', body: formData }),

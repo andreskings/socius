@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ChevronDown, Download, Mail } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Download, Mail, CalendarClock } from 'lucide-react';
 import { api } from '../api/client';
-import { ESTADOS_POSTULACION, postulacionBadge } from '../catalogos';
+import { ESTADOS_POSTULACION, postulacionBadge, formatFecha } from '../catalogos';
+import CambiarEstadoModal from '../components/CambiarEstadoModal';
+
+// Estos dos estados le mandan un correo real al candidato, así que antes de
+// aplicarlos se pide confirmación (y, para Entrevista, la fecha) en un modal —
+// evita mandar avisos por un cambio accidental de columna.
+const ESTADOS_QUE_NOTIFICAN = ['Entrevista', 'Rechazado'];
 
 const COLUMNA_ESTILO = {
   Nuevo: 'border-t-blue-400',
@@ -17,6 +23,7 @@ export default function PipelineView({ onBack }) {
   const [busquedaId, setBusquedaId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pendiente, setPendiente] = useState(null); // { postulacion, nuevoEstado }
 
   const cargar = () => {
     setLoading(true);
@@ -39,15 +46,28 @@ export default function PipelineView({ onBack }) {
     return map;
   }, [postulaciones]);
 
-  const cambiarEstado = async (postulacion, nuevoEstado) => {
+  const cambiarEstado = async (postulacion, nuevoEstado, extra = {}) => {
     setError('');
     const anterior = postulaciones;
     setPostulaciones((prev) => prev.map((p) => (p.id === postulacion.id ? { ...p, estado: nuevoEstado } : p)));
     try {
-      await api.actualizarEstadoPostulacion(postulacion.id, nuevoEstado);
+      const actualizada = await api.actualizarEstadoPostulacion(postulacion.id, nuevoEstado, extra);
+      setPostulaciones((prev) => prev.map((p) => (p.id === postulacion.id ? actualizada : p)));
     } catch (err) {
       setError(err.message);
       setPostulaciones(anterior);
+      throw err;
+    }
+  };
+
+  // Entrevista/Rechazado mandan correo real al candidato: se confirma primero en
+  // un modal (y ahí se pide la fecha si es Entrevista). El resto de los estados
+  // se aplican directo, como antes.
+  const elegirEstado = (postulacion, nuevoEstado) => {
+    if (ESTADOS_QUE_NOTIFICAN.includes(nuevoEstado)) {
+      setPendiente({ postulacion, nuevoEstado });
+    } else {
+      cambiarEstado(postulacion, nuevoEstado);
     }
   };
 
@@ -111,6 +131,12 @@ export default function PipelineView({ onBack }) {
                       <div className="text-xs text-gray-500 mt-1.5">
                         {p.busqueda?.posicion || <span className="italic text-gray-400">Base de talentos</span>}
                       </div>
+                      {p.estado === 'Entrevista' && p.fechaEntrevista && (
+                        <div className="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 rounded px-1.5 py-1 mt-1.5">
+                          <CalendarClock className="w-3 h-3 shrink-0" />
+                          {formatFecha(p.fechaEntrevista)}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mt-2.5 gap-2">
                         {p.candidato.cvArchivo ? (
                           <button
@@ -127,7 +153,7 @@ export default function PipelineView({ onBack }) {
                         <div className="relative">
                           <select
                             value={p.estado}
-                            onChange={(e) => cambiarEstado(p, e.target.value)}
+                            onChange={(e) => elegirEstado(p, e.target.value)}
                             className={`text-xs pl-2 pr-6 py-1 rounded appearance-none font-medium cursor-pointer ${postulacionBadge(p.estado)}`}
                           >
                             {ESTADOS_POSTULACION.map((e) => (
@@ -146,6 +172,18 @@ export default function PipelineView({ onBack }) {
             </div>
           ))}
         </div>
+      )}
+
+      {pendiente && (
+        <CambiarEstadoModal
+          postulacion={pendiente.postulacion}
+          nuevoEstado={pendiente.nuevoEstado}
+          onClose={() => setPendiente(null)}
+          onConfirm={async (extra) => {
+            await cambiarEstado(pendiente.postulacion, pendiente.nuevoEstado, extra);
+            setPendiente(null);
+          }}
+        />
       )}
     </>
   );
