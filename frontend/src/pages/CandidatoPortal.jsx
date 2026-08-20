@@ -103,26 +103,27 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
           <p className="text-sm text-gray-500 mt-0.5">{perfil.email}</p>
           {!perfil.emailVerificado && (
             <div className="bg-orange-50 rounded-lg px-3 py-2.5 mt-3">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <p className="text-sm text-orange-600">Todavía no verificaste tu correo. No podés postular hasta hacerlo.</p>
-                <button
-                  onClick={handleReenviarVerificacion}
-                  disabled={reenviando}
-                  className="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors disabled:opacity-60"
-                >
-                  {reenviando ? 'Generando...' : 'Reenviar verificación'}
-                </button>
-              </div>
-              {devVerificationUrl && (
-                <div className="mt-2 pt-2 border-t border-orange-200">
-                  <p className="text-xs text-orange-700 font-medium mb-1">
-                    Modo desarrollo: no hay envío de email real, verificá con este link
-                  </p>
-                  <a href={devVerificationUrl} className="text-xs text-blue-600 hover:underline break-all">
-                    {devVerificationUrl}
-                  </a>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={handleReenviarVerificacion}
+                    disabled={reenviando}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors disabled:opacity-60"
+                  >
+                    {reenviando ? 'Generando...' : 'Reenviar verificación'}
+                  </button>
+                  {devVerificationUrl && (
+                    <a
+                      href={devVerificationUrl}
+                      title="Modo prueba (sitio aún no desplegado): verificá directo sin ir a tu correo"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                    >
+                      Verificar ahora
+                    </a>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
 

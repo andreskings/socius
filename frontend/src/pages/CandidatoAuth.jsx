@@ -157,14 +157,14 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                   </p>
                   {resultado.devVerificationUrl && (
                     <div className="mt-4 max-w-sm bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-xs text-amber-700 font-medium mb-1.5">
-                        Modo desarrollo: no hay envío de email real, verificá con este link
+                      <p className="text-xs text-amber-700 font-medium mb-2">
+                        Modo prueba (sitio aún no desplegado): podés verificar directo acá en vez de ir a tu correo
                       </p>
                       <a
                         href={resultado.devVerificationUrl}
-                        className="text-xs text-blue-600 hover:underline break-all"
+                        className="inline-block text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg px-3 py-1.5 transition-colors"
                       >
-                        {resultado.devVerificationUrl}
+                        Verificar ahora
                       </a>
                     </div>
                   )}
