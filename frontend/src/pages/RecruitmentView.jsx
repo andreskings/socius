@@ -7,6 +7,7 @@ import CopyLinkButton from '../components/CopyLinkButton';
 
 export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
   const [busquedas, setBusquedas] = useState([]);
+  const [postulaciones, setPostulaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [posicion, setPosicion] = useState('');
@@ -16,9 +17,11 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
 
   const load = () => {
     setLoading(true);
-    api
-      .getBusquedas()
-      .then(setBusquedas)
+    Promise.all([api.getBusquedas(), api.getPostulaciones()])
+      .then(([bs, ps]) => {
+        setBusquedas(bs);
+        setPostulaciones(ps);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -48,10 +51,14 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
     }
   };
 
+  // "En Proceso" y "En Entrevistas" reflejan el estado de las POSTULACIONES (el
+  // pipeline kanban), no el estado de la búsqueda en sí — así el panel cambia en
+  // el momento en que se mueve un candidato de columna, en vez de depender de un
+  // campo de la búsqueda que nada más actualiza.
   const stats = [
     { label: 'Búsquedas Activas', value: busquedas.filter((b) => b.estado === 'Activa').length, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'En Proceso', value: busquedas.filter((b) => b.estado === 'En proceso').length, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'En Entrevistas', value: busquedas.filter((b) => b.estado === 'Entrevistas').length, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { label: 'En Proceso', value: postulaciones.filter((p) => p.estado === 'En revisión').length, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'En Entrevistas', value: postulaciones.filter((p) => p.estado === 'Entrevista').length, color: 'text-orange-600', bg: 'bg-orange-50' },
     { label: 'Total Candidatos', value: candidatosCount, color: 'text-green-600', bg: 'bg-green-50', clickable: true },
   ];
 
