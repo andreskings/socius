@@ -52,10 +52,11 @@ de cargo con IA (Groq).
 - Los catálogos (prácticas, prioridades, estados, regiones, disponibilidad, rangos de experiencia)
   están fijados en el frontend (`frontend/src/catalogos.js`) según lo observado en la maqueta.
 - Un candidato queda asociado a **una** postulación por búsqueda (o a ninguna = base de talentos).
-- No hay envío real de email: la verificación de correo y el reset de contraseña generan un
-  token real (con expiración y un solo uso), pero como no hay SMTP configurado en este
-  entorno local, el link se muestra directo en pantalla (modo desarrollo) además de
-  loguearse en la consola del backend.
+- La verificación de correo y el reset de contraseña generan un token real (con
+  expiración y un solo uso) y se envían por email de verdad vía la API de Brevo.
+  Si `BREVO_API_KEY`/`MAIL_FROM` no están configurados (o el envío falla), cae a
+  mostrar el link directo en pantalla (modo desarrollo) además de loguearlo en la
+  consola del backend.
 - El análisis de IA es una sugerencia de afinidad, no una evaluación objetiva de
   "calidad" del candidato — la responsabilidad de decidir sigue siendo del reclutador.
 
@@ -76,7 +77,7 @@ Esto levanta Postgres en `localhost:5432` (usuario/clave/db: `socius`).
 ```bash
 cd backend
 npm install
-cp .env.example .env      # completa JWT_SECRET, ADMIN_SEED_* y GROQ_API_KEY con tus propios valores
+cp .env.example .env      # completa JWT_SECRET, ADMIN_SEED_*, GROQ_API_KEY y BREVO_API_KEY con tus propios valores
 npx prisma migrate dev    # crea las tablas
 npm run seed               # crea el primer usuario ADMIN (según ADMIN_SEED_* en .env)
 npm run dev                # http://localhost:4000
@@ -84,6 +85,11 @@ npm run dev                # http://localhost:4000
 
 `GROQ_API_KEY` es gratis en https://console.groq.com/keys. Sin ella, todo el resto
 de la app funciona igual — solo falla el botón "Analizar con IA" con un mensaje claro.
+
+`BREVO_API_KEY` es gratis en https://app.brevo.com/settings/keys/api (300 correos/día).
+`MAIL_FROM` debe ser un correo verificado como remitente en Brevo. Sin estas dos
+variables, la app funciona igual pero en modo desarrollo: los links de verificación
+y reset de contraseña se muestran en pantalla en vez de mandarse por correo.
 
 ### 3. Frontend
 
@@ -100,9 +106,10 @@ El frontend proxea las peticiones no reconocidas hacia `http://localhost:4000`
 - `http://localhost:3000/postular` o `/postular/:cargo` — registro/login de candidato y postulación
 - `http://localhost:3000/candidato/portal` — portal del candidato (perfil, CV, mis postulaciones)
 
-Los links de verificación de email y de recuperación de contraseña se muestran
-directo en pantalla (modo desarrollo, ver "Supuestos") además de imprimirse en la
-consola donde corre `npm run dev` del backend.
+La verificación de email y la recuperación de contraseña se envían por correo real
+(vía Brevo). Sin `BREVO_API_KEY`/`MAIL_FROM` configurados, cae al modo desarrollo:
+el link se muestra directo en pantalla además de imprimirse en la consola donde
+corre `npm run dev` del backend.
 
 ## Estructura
 
@@ -127,5 +134,5 @@ frontend/
 
 - Edición y cierre de búsquedas desde la UI (hoy solo se pueden crear y eliminar)
 - Tests automatizados (backend: rutas con supertest; frontend: componentes con Jest + Testing Library)
-- Envío real de email (SMTP), CAPTCHA, MFA para staff — documentado como diferido en
+- CAPTCHA, MFA para staff — documentado como diferido en
   `Desktop/socius-docs/04-roles-permisos-login-candidatos.md` por requerir servicios externos
