@@ -2,17 +2,16 @@ const BASE = process.env.REACT_APP_API_URL || '';
 
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
-function csrfToken() {
-  const match = document.cookie.match(/(?:^|; )csrfToken=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
+// El token CSRF viaja también en el body de login/registro/me: la cookie que lo
+// contiene vive en el dominio del backend, así que document.cookie no la puede
+// leer desde el frontend (dominios separados en prod). Se guarda en memoria acá.
+let csrfToken = null;
 
 async function request(path, options = {}) {
   const method = (options.method || 'GET').toUpperCase();
   const headers = { ...options.headers };
-  if (!SAFE_METHODS.includes(method)) {
-    const token = csrfToken();
-    if (token) headers['X-CSRF-Token'] = token;
+  if (!SAFE_METHODS.includes(method) && csrfToken) {
+    headers['X-CSRF-Token'] = csrfToken;
   }
   const res = await fetch(`${BASE}${path}`, { credentials: 'include', ...options, headers });
   if (!res.ok) {
@@ -20,7 +19,10 @@ async function request(path, options = {}) {
     throw new Error(body.error || `Error ${res.status}`);
   }
   const contentType = res.headers.get('content-type') || '';
-  return contentType.includes('application/json') ? res.json() : res.blob();
+  if (!contentType.includes('application/json')) return res.blob();
+  const data = await res.json();
+  if (typeof data?.csrfToken === 'string') csrfToken = data.csrfToken;
+  return data;
 }
 
 const json = (data) => ({ headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -84,7 +86,9 @@ export const api = {
 
   // ---- Auth común ----
   me: () => request('/auth/me'),
-  logout: () => request('/auth/logout', { method: 'POST' }),
+  logout: () => request('/auth/logout', { method: 'POST' }).finally(() => {
+    csrfToken = null;
+  }),
   forgotPassword: (email, actor) => request('/auth/forgot-password', { method: 'POST', ...json({ email, actor }) }),
   resetPassword: (token, password) => request('/auth/reset-password', { method: 'POST', ...json({ token, password }) }),
 
