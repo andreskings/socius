@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Upload, Check, Calendar, Briefcase } from 'lucide-react';
+import { LogOut, Upload, Calendar, Briefcase } from 'lucide-react';
 import { api } from '../api/client';
 import { formatFecha, postulacionBadge } from '../catalogos';
 
