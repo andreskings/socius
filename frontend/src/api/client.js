@@ -1,7 +1,20 @@
 const BASE = process.env.REACT_APP_API_URL || '';
 
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
+function csrfToken() {
+  const match = document.cookie.match(/(?:^|; )csrfToken=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 async function request(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, { credentials: 'include', ...options });
+  const method = (options.method || 'GET').toUpperCase();
+  const headers = { ...options.headers };
+  if (!SAFE_METHODS.includes(method)) {
+    const token = csrfToken();
+    if (token) headers['X-CSRF-Token'] = token;
+  }
+  const res = await fetch(`${BASE}${path}`, { credentials: 'include', ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Error ${res.status}`);
