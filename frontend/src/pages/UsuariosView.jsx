@@ -77,7 +77,7 @@ export default function UsuariosView({ usuarioActual, onBack }) {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-5 mb-5 border border-gray-100 grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-5 mb-5 border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre</label>
             <input required className={inputCls} value={nombre} onChange={(e) => setNombre(e.target.value)} />
@@ -107,6 +107,7 @@ export default function UsuariosView({ usuarioActual, onBack }) {
       )}
 
       <div className="bg-white rounded-lg overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr className="text-left text-xs text-gray-500">
@@ -155,6 +156,7 @@ export default function UsuariosView({ usuarioActual, onBack }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   );

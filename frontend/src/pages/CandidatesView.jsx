@@ -221,7 +221,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                           title="Ver detalles"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          Ver
+                          <span className="hidden sm:inline">Ver</span>
                         </button>
                         <button
                           onClick={() => descargarDatos(c)}
@@ -229,7 +229,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                           title="Descargar datos"
                         >
                           <FileText className="w-3.5 h-3.5" />
-                          Datos
+                          <span className="hidden sm:inline">Datos</span>
                         </button>
                         <button
                           onClick={() => api.descargarCv(c.id, c.cvNombreOriginal)}
@@ -238,7 +238,7 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                           title="Descargar CV"
                         >
                           <Download className="w-3.5 h-3.5" />
-                          CV
+                          <span className="hidden sm:inline">CV</span>
                         </button>
                         {usuarioActual?.rol === 'ADMIN' && (
                           <button

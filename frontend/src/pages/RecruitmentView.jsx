@@ -80,7 +80,7 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
           <button
             key={s.label}
@@ -112,7 +112,7 @@ export default function RecruitmentView({ candidatosCount, onVerCandidatos }) {
             </button>
           )}
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
             <input

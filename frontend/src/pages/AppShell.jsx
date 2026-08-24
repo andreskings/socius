@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Users, User, UserCog, LogOut, Kanban } from 'lucide-react';
+import { Briefcase, Users, User, UserCog, LogOut, Kanban, Menu, X } from 'lucide-react';
 import { api } from '../api/client';
 import RecruitmentView from './RecruitmentView';
 import CandidatesView from './CandidatesView';
@@ -14,6 +14,7 @@ export default function AppShell() {
   const [view, setView] = useState('recruitment');
   const [filterPosition, setFilterPosition] = useState('');
   const [candidatosCount, setCandidatosCount] = useState(0);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   useEffect(() => {
     api
@@ -34,6 +35,12 @@ export default function AppShell() {
   const irACandidatos = (posicion = '') => {
     setFilterPosition(posicion);
     setView('candidates');
+    setMenuAbierto(false);
+  };
+
+  const seleccionarVista = (v) => {
+    setView(v);
+    setMenuAbierto(false);
   };
 
   const handleLogout = async () => {
@@ -47,14 +54,21 @@ export default function AppShell() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-[#1a1f36] text-white px-6 py-3 flex items-center justify-between">
-        <div />
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+      <header className="bg-[#1a1f36] text-white px-4 md:px-6 py-3 flex items-center justify-between">
+        <button
+          onClick={() => setMenuAbierto((v) => !v)}
+          className="md:hidden text-white/70 hover:text-white transition-colors"
+          aria-label="Abrir menú"
+        >
+          {menuAbierto ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+        <div className="hidden md:block" />
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="text-right hidden sm:block">
             <div className="text-sm">{usuario.nombre}</div>
             <div className="text-xs text-white/40">{usuario.rol === 'ADMIN' ? 'Administrador' : 'Reclutador'}</div>
           </div>
-          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center shrink-0">
             <User className="w-5 h-5" />
           </div>
           <button onClick={handleLogout} title="Cerrar sesión" className="text-white/50 hover:text-white transition-colors">
@@ -63,12 +77,23 @@ export default function AppShell() {
         </div>
       </header>
 
-      <div className="flex">
-        <aside className="w-60 bg-white border-r min-h-screen shrink-0">
+      <div className="flex relative">
+        {menuAbierto && (
+          <div
+            onClick={() => setMenuAbierto(false)}
+            className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          />
+        )}
+
+        <aside
+          className={`fixed inset-y-0 left-0 z-40 w-60 bg-white border-r shrink-0 transition-transform duration-200 ease-out
+            md:static md:translate-x-0 md:min-h-screen
+            ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}
+        >
           <nav className="p-4 space-y-0.5">
             <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-2">Reclutamiento</p>
             <button
-              onClick={() => setView('recruitment')}
+              onClick={() => seleccionarVista('recruitment')}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                 view === 'recruitment' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
               }`}
@@ -87,7 +112,7 @@ export default function AppShell() {
               <span className="ml-auto bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{candidatosCount}</span>
             </button>
             <button
-              onClick={() => setView('pipeline')}
+              onClick={() => seleccionarVista('pipeline')}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                 view === 'pipeline' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
               }`}
@@ -100,7 +125,7 @@ export default function AppShell() {
               <>
                 <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-4">Administración</p>
                 <button
-                  onClick={() => setView('usuarios')}
+                  onClick={() => seleccionarVista('usuarios')}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                     view === 'usuarios' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
                   }`}
@@ -113,7 +138,7 @@ export default function AppShell() {
           </nav>
         </aside>
 
-        <main className="flex-1 p-6 min-w-0">
+        <main className="flex-1 p-4 md:p-6 min-w-0 w-full">
           {view === 'candidates' && (
             <CandidatesView
               filterPosition={filterPosition}

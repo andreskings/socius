@@ -213,7 +213,7 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
             </form>
           ) : (
             <form onSubmit={handleRegistro} className="px-8 py-7 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Nombre <span className="text-red-500">*</span>
@@ -228,7 +228,7 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Correo electrónico <span className="text-red-500">*</span>
@@ -251,7 +251,7 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
                   <input className={inputCls} placeholder="+56 9 1234 5678" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
@@ -270,7 +270,7 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Disponibilidad presencial</label>
                   <div className="relative">
