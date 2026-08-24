@@ -71,6 +71,11 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
     URL.revokeObjectURL(url);
   };
 
+  const actualizarCandidato = (parcial) => {
+    setCandidatos((prev) => prev.map((c) => (c.id === parcial.id ? { ...c, ...parcial } : c)));
+    setSeleccionado((prev) => (prev && prev.id === parcial.id ? { ...prev, ...parcial } : prev));
+  };
+
   const eliminarCandidato = async (c) => {
     if (!window.confirm(`¿Eliminar a ${c.nombre} ${c.apellido}? Esta acción no se puede deshacer.`)) return;
     try {
@@ -254,7 +259,9 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
         </div>
       </div>
 
-      {seleccionado && <CandidateModal candidate={seleccionado} onClose={() => setSeleccionado(null)} />}
+      {seleccionado && (
+        <CandidateModal candidate={seleccionado} onClose={() => setSeleccionado(null)} onUpdated={actualizarCandidato} />
+      )}
     </>
   );
 }

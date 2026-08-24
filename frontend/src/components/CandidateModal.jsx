@@ -3,7 +3,7 @@ import { X, FileText, Download, Sparkles, RefreshCw } from 'lucide-react';
 import { formatFecha, veredictoBadge } from '../catalogos';
 import { api } from '../api/client';
 
-export default function CandidateModal({ candidate: c, onClose }) {
+export default function CandidateModal({ candidate: c, onClose, onUpdated }) {
   const [analisis, setAnalisis] = useState(c.analisisIa ?? null);
   const [analizando, setAnalizando] = useState(false);
   const [errorAnalisis, setErrorAnalisis] = useState('');
@@ -48,6 +48,7 @@ export default function CandidateModal({ candidate: c, onClose }) {
     try {
       const actualizado = await api.analizarCvIA(c.id);
       setAnalisis(actualizado.analisisIa);
+      onUpdated?.({ id: c.id, analisisIa: actualizado.analisisIa });
     } catch (err) {
       setErrorAnalisis(err.message);
     } finally {
