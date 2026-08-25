@@ -64,7 +64,9 @@ export default function CambiarEstadoModal({ postulacion, nuevoEstado, onClose, 
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Mensaje {esEntrevista ? '(opcional — ej. modalidad, link, entrevistador)' : '(opcional)'}
+              {esEntrevista
+                ? 'Mensaje (opcional — ej. modalidad, link, entrevistador)'
+                : 'Motivo del rechazo (opcional — queda guardado en la pestaña Rechazados)'}
             </label>
             <textarea
               rows={3}

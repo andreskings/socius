@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Users, User, UserCog, LogOut, Kanban, Menu, X } from 'lucide-react';
+import { Briefcase, Users, User, UserCog, LogOut, Kanban, Menu, X, CalendarClock, UserX } from 'lucide-react';
 import { api } from '../api/client';
 import RecruitmentView from './RecruitmentView';
 import CandidatesView from './CandidatesView';
 import UsuariosView from './UsuariosView';
 import PipelineView from './PipelineView';
+import EntrevistasView from './EntrevistasView';
+import RechazadosView from './RechazadosView';
 
 export default function AppShell() {
   const navigate = useNavigate();
@@ -120,6 +122,24 @@ export default function AppShell() {
               <Kanban className="w-4 h-4" />
               Pipeline
             </button>
+            <button
+              onClick={() => seleccionarVista('entrevistas')}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                view === 'entrevistas' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarClock className="w-4 h-4" />
+              Entrevistas
+            </button>
+            <button
+              onClick={() => seleccionarVista('rechazados')}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                view === 'rechazados' ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <UserX className="w-4 h-4" />
+              Rechazados
+            </button>
 
             {usuario.rol === 'ADMIN' && (
               <>
@@ -151,6 +171,8 @@ export default function AppShell() {
             <RecruitmentView candidatosCount={candidatosCount} onVerCandidatos={irACandidatos} />
           )}
           {view === 'pipeline' && <PipelineView onBack={() => setView('recruitment')} />}
+          {view === 'entrevistas' && <EntrevistasView onBack={() => setView('recruitment')} />}
+          {view === 'rechazados' && <RechazadosView onBack={() => setView('recruitment')} />}
           {view === 'usuarios' && usuario.rol === 'ADMIN' && (
             <UsuariosView usuarioActual={usuario} onBack={() => setView('recruitment')} />
           )}
