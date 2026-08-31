@@ -71,6 +71,20 @@ export default function PipelineView({ onBack }) {
     }
   };
 
+  // Mueve una postulación (típicamente de la base de talentos) a una búsqueda
+  // puntual, o la devuelve a la base de talentos. Recarga desde el servidor en
+  // vez de actualizar en memoria porque, si hay un filtro de búsqueda activo, la
+  // tarjeta puede dejar de pertenecer a la columna filtrada actual.
+  const asignarBusqueda = async (postulacion, nuevoBusquedaId) => {
+    setError('');
+    try {
+      await api.actualizarEstadoPostulacion(postulacion.id, postulacion.estado, { busquedaId: nuevoBusquedaId || null });
+      cargar();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
@@ -128,8 +142,25 @@ export default function PipelineView({ onBack }) {
                         <Mail className="w-3 h-3" />
                         {p.candidato.email}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1.5">
-                        {p.busqueda?.posicion || <span className="italic text-gray-400">Base de talentos</span>}
+                      <div className="relative mt-1.5">
+                        <select
+                          value={p.busquedaId || ''}
+                          onChange={(e) => asignarBusqueda(p, e.target.value)}
+                          title="Asignar a una búsqueda"
+                          className={`w-full text-xs pl-1.5 pr-5 py-0.5 rounded appearance-none border border-transparent hover:border-gray-200 focus:outline-none focus:ring-1 focus:ring-purple-300 cursor-pointer ${
+                            p.busqueda ? 'text-gray-600' : 'italic text-gray-400'
+                          }`}
+                        >
+                          <option value="" className="italic">
+                            Base de talentos
+                          </option>
+                          {busquedas.map((b) => (
+                            <option key={b.id} value={b.id} className="not-italic text-gray-800">
+                              {b.posicion}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
                       </div>
                       {p.estado === 'Entrevista' && p.fechaEntrevista && (
                         <div className="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 rounded px-1.5 py-1 mt-1.5">
