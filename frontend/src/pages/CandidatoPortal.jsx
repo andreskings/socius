@@ -17,8 +17,8 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
   const fileRef = useRef(null);
 
   const cargar = () => {
-    Promise.all([api.getMiPerfil(), api.getMisPostulaciones(), api.getBusquedas()])
-      .then(([p, post, b]) => {
+    Promise.all([api.me(), api.getMiPerfil(), api.getMisPostulaciones(), api.getBusquedas()])
+      .then(([, p, post, b]) => {
         setPerfil(p);
         setPostulaciones(post);
         setBusquedas(b);
