@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Search, X, ChevronDown, Calendar, Eye, FileText, Download, Trash2 } from 'lucide-react';
+import { ArrowLeft, Search, X, ChevronDown, Calendar, Eye, FileText, Download, Trash2, Kanban } from 'lucide-react';
 import { api } from '../api/client';
 import { formatFecha, veredictoBadge } from '../catalogos';
 import CandidateModal from '../components/CandidateModal';
+import MoverAPipelineModal from '../components/MoverAPipelineModal';
 
 export default function CandidatesView({ filterPosition, onBack, onCountChange, usuarioActual }) {
   const [candidatos, setCandidatos] = useState([]);
+  const [busquedas, setBusquedas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cargo, setCargo] = useState(filterPosition ?? '');
   const [busqueda, setBusqueda] = useState('');
   const [seleccionado, setSeleccionado] = useState(null);
+  const [aMover, setAMover] = useState(null);
 
   const cargar = () => {
     setLoading(true);
@@ -23,6 +26,9 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
   };
 
   useEffect(cargar, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    api.getBusquedas({ estado: 'Activa' }).then(setBusquedas);
+  }, []);
 
   useEffect(() => setCargo(filterPosition ?? ''), [filterPosition]);
 
@@ -74,6 +80,12 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
   const actualizarCandidato = (parcial) => {
     setCandidatos((prev) => prev.map((c) => (c.id === parcial.id ? { ...c, ...parcial } : c)));
     setSeleccionado((prev) => (prev && prev.id === parcial.id ? { ...prev, ...parcial } : prev));
+  };
+
+  const moverAlPipeline = async (busquedaId) => {
+    const actualizada = await api.actualizarEstadoPostulacion(aMover.postulacionId, aMover.postulacionEstado, { busquedaId });
+    actualizarCandidato({ id: aMover.id, cargo: actualizada.busqueda?.posicion ?? null, busquedaId: actualizada.busquedaId });
+    setAMover(null);
   };
 
   const eliminarCandidato = async (c) => {
@@ -181,7 +193,23 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
                       <div className="text-xs text-gray-400 mt-0.5">{c.email}</div>
                     </td>
                     <td className="py-3 px-4 text-gray-600">
-                      {c.cargo || <span className="text-gray-400 italic">Base de talentos</span>}
+                      {c.cargo ? (
+                        c.cargo
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400 italic">Base de talentos</span>
+                          {c.postulacionId && (
+                            <button
+                              onClick={() => setAMover(c)}
+                              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors"
+                              title="Mover al pipeline de una búsqueda"
+                            >
+                              <Kanban className="w-3 h-3" />
+                              Mover al pipeline
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-gray-600">{c.experienciaRango}</td>
                     <td className="py-3 px-4 text-gray-600">{c.region}</td>
@@ -261,6 +289,10 @@ export default function CandidatesView({ filterPosition, onBack, onCountChange, 
 
       {seleccionado && (
         <CandidateModal candidate={seleccionado} onClose={() => setSeleccionado(null)} onUpdated={actualizarCandidato} />
+      )}
+
+      {aMover && (
+        <MoverAPipelineModal candidato={aMover} busquedas={busquedas} onClose={() => setAMover(null)} onConfirm={moverAlPipeline} />
       )}
     </>
   );
