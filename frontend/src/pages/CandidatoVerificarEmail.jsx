@@ -18,13 +18,15 @@ export default function CandidatoVerificarEmail() {
     api
       .verificarEmailCandidato(token)
       .then(async () => {
-        // Si eligió un cargo al registrarse (mismo navegador), completa esa
-        // postulación ahora que el email ya está verificado, sin pasos extra.
+        // Se registró en este mismo navegador: completa la postulación ahora que
+        // el email ya está verificado, sin pasos extra. El valor guardado es el id
+        // de la búsqueda elegida, o '' si fue "sin cargo específico" (base de
+        // talentos) — por eso se compara contra null (ausente) y no por truthy.
         const busquedaId = sessionStorage.getItem('socius:postularAlVerificar');
-        if (busquedaId) {
+        if (busquedaId !== null) {
           sessionStorage.removeItem('socius:postularAlVerificar');
           await api
-            .postular(busquedaId)
+            .postular(busquedaId || undefined)
             .then(() => setPostulado(true))
             .catch(() => {});
         }

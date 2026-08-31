@@ -80,6 +80,21 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
     }
   };
 
+  // Cubre tanto al candidato que nunca eligió "sumarme a la base de talentos" como
+  // al que quedó sin esa postulación por el bug donde elegir "sin cargo específico"
+  // en el registro no la creaba (ver CandidatoAuth.jsx) — les da una salida manual
+  // sin tener que recrear la cuenta.
+  const enBaseDeTalentos = postulaciones.some((p) => !p.busquedaId);
+  const handleSumarseABaseDeTalentos = async () => {
+    setMensaje('');
+    try {
+      await api.postular();
+      cargar();
+    } catch (err) {
+      setMensaje(err.message);
+    }
+  };
+
   if (loading) return <div className="min-h-screen bg-[#f0f4f8] flex items-center justify-center text-sm text-gray-400">Cargando...</div>;
 
   return (
@@ -165,6 +180,18 @@ export default function CandidatoPortal({ onLoggedOut = () => {} }) {
                   <span className={`text-xs px-2 py-1 rounded font-medium ${postulacionBadge(p.estado)}`}>{p.estado}</span>
                 </div>
               ))}
+            </div>
+          )}
+
+          {perfil.emailVerificado && !enBaseDeTalentos && (
+            <div className="flex items-center justify-between gap-3 flex-wrap mt-4 pt-4 border-t">
+              <p className="text-xs text-gray-500">¿Querés que te tengamos en cuenta para futuras búsquedas?</p>
+              <button
+                onClick={handleSumarseABaseDeTalentos}
+                className="text-xs px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors shrink-0"
+              >
+                Sumarme a la base de talentos
+              </button>
             </div>
           )}
         </div>

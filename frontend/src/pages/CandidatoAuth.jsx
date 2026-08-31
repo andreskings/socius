@@ -51,10 +51,13 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
     if (file) setCvFile(file);
   };
 
-  const postularSiCorresponde = async (candidato) => {
-    if (!busquedaElegida || !candidato.emailVerificado) return false;
+  // En el registro, "Sin cargo específico" también cuenta como postulación (a la
+  // base de talentos, con busquedaId vacío) — por eso ahí se fuerza. En el login
+  // (sin slug de por medio) no hay que crear nada si no se eligió una búsqueda.
+  const postularSiCorresponde = async (candidato, forzar = false) => {
+    if (!candidato.emailVerificado || (!forzar && !busquedaElegida)) return false;
     try {
-      await api.postular(busquedaElegida.id);
+      await api.postular(busquedaElegida?.id);
       return true;
     } catch {
       return false;
@@ -79,12 +82,13 @@ export default function CandidatoAuth({ onLoggedIn = () => {}, modoInicial = 're
       if (cvFile) formData.append('cv', cvFile);
       const candidato = await api.registrarCandidato(formData);
       onLoggedIn(candidato);
-      const postulado = await postularSiCorresponde(candidato);
-      // Si eligió cargo pero todavía no está verificado, la postulación no se pudo
-      // crear ahora — se guarda acá para completarla sola apenas verifique el email
-      // (ver CandidatoVerificarEmail.jsx), sin que tenga que ir a buscarla al portal.
-      if (busquedaElegida && !candidato.emailVerificado) {
-        sessionStorage.setItem('socius:postularAlVerificar', busquedaElegida.id);
+      const postulado = await postularSiCorresponde(candidato, true);
+      // Todavía no está verificado: la postulación no se pudo crear ahora — se
+      // guarda acá (con búsqueda elegida o vacío para base de talentos) para
+      // completarla sola apenas verifique el email (ver CandidatoVerificarEmail.jsx),
+      // sin que tenga que ir a buscarla al portal.
+      if (!candidato.emailVerificado) {
+        sessionStorage.setItem('socius:postularAlVerificar', busquedaElegida?.id ?? '');
       }
       setResultado({ verificado: candidato.emailVerificado, postulado, devVerificationUrl: candidato.devVerificationUrl });
     } catch (err) {
